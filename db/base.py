@@ -293,10 +293,15 @@ class DatabaseWrapper(NonrelDatabaseWrapper):
         self.validation = DatabaseValidation(self)
         self.introspection = DatabaseIntrospection(self)
         options = self.settings_dict
-        self.remote_app_id = options.get('REMOTE_APP_ID', appid)
         self.domain = options.get('DOMAIN', 'appspot.com')
         self.remote_api_path = options.get('REMOTE_API_PATH', None)
         self.secure_remote_api = options.get('SECURE_REMOTE_API', True)
+        
+        # Look for and parse out appid's that include domains (example.com:appid)
+        if ':' in appid:
+            self.remote_app_id = options.get('REMOTE_APP_ID', appid.split(':')[1])
+        else:
+            self.remote_app_id = options.get('REMOTE_APP_ID', appid)
 
         remote = options.get('REMOTE', False)
         if on_production_server:
